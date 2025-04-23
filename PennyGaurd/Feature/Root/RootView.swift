@@ -43,3 +43,9 @@ struct RootView: View {
         }
     }
 }
+
+#Preview {
+    RootView(store: Store(initialState: AppReducer.State(), reducer: {
+        AppReducer()
+    }))
+}

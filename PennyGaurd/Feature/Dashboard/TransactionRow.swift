@@ -34,7 +34,7 @@ struct TransactionRow: View {
                     .fontWeight(.semibold)
                     .foregroundStyle(transaction.type == .expense ? .red : .green)
                 
-                Text(transaction.date, style: .time)
+                Text(transaction.date, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

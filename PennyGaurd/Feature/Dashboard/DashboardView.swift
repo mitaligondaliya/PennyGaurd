@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import SwiftData
 
 // MARK: - DashboardView
 struct DashboardView: View {
@@ -89,10 +90,12 @@ struct DashboardView: View {
             Text("Spending by Category")
                 .font(.headline)
                 .padding(.bottom, 5)
+            
+            Divider()
 
             if !viewStore.expensesByCategory.isEmpty {
                 ForEach(viewStore.expensesByCategory.sorted(by: { $0.value > $1.value }), id: \.key) { category, amount in
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Text(category.displayName)
                             Spacer()
@@ -105,9 +108,12 @@ struct DashboardView: View {
                     }
                 }
             } else {
-                Text("No expense data for selected period")
-                    .foregroundStyle(.secondary)
-                    .padding()
+                PlaceholderView(
+                    message: "No expense data for the selected period.",
+                    addAction: {
+                        viewStore.send(.addButtonTapped)
+                    }
+                )
             }
         }
         .cardStyle()
@@ -119,10 +125,12 @@ struct DashboardView: View {
                 Text("Recent Transactions")
                     .font(.headline)
             }
-            .padding(.bottom, 5)
+            
+            Divider()
 
             if !viewStore.filteredTransactions.isEmpty {
                 ForEach(viewStore.filteredTransactions.prefix(5)) { transaction in
+                    
                     TransactionRow(transaction: transaction)
 
                     if transaction.id != viewStore.filteredTransactions.prefix(5).last?.id {
@@ -130,9 +138,12 @@ struct DashboardView: View {
                     }
                 }
             } else {
-                Text("No transactions for selected period")
-                    .foregroundStyle(.secondary)
-                    .padding()
+                PlaceholderView(
+                    message: "No transactions for the selected period.",
+                    addAction: {
+                        viewStore.send(.addButtonTapped)
+                    }
+                )
             }
         }
         .cardStyle()
@@ -165,9 +176,23 @@ struct DashboardView: View {
 
 // MARK: - Preview
 #Preview {
+    
+    let modelContainer: ModelContainer = {
+            do {
+                let schema = Schema([Transaction.self])
+                let config = ModelConfiguration(isStoredInMemoryOnly: true)
+                return try ModelContainer(for: schema, configurations: [config])
+            } catch {
+                fatalError("Failed to create ModelContainer: \(error)")
+            }
+        }()
+
+        let modelContext = modelContainer.mainContext
     DashboardView(
         store: Store(initialState: DashboardReducer.State()) {
             DashboardReducer()
         }
     )
+    .environment(\.modelContext, modelContext)
 }
+
