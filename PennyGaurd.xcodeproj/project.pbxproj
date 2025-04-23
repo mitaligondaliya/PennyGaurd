@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4809B29C2DB25D8000E70FFC /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 4809B29B2DB25D8000E70FFC /* ComposableArchitecture */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4801CF5A2DB230A3001434DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4809B29C2DB25D8000E70FFC /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = PennyGaurd;
 			packageProductDependencies = (
+				4809B29B2DB25D8000E70FFC /* ComposableArchitecture */,
 			);
 			productName = PennyGaurd;
 			productReference = 4801CF462DB2309C001434DB /* PennyGaurd.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 4801CF3D2DB2309C001434DB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4809B29A2DB25D8000E70FFC /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4801CF472DB2309C001434DB /* Products */;
 			projectDirPath = "";
@@ -388,10 +397,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = PennyGaurd/PennyGaurd.entitlements;
+				CODE_SIGN_ENTITLEMENTS = PennyGaurd/MainApp/PennyGaurd.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"PennyGaurd/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"PennyGaurd/Resources/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -425,10 +434,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = PennyGaurd/PennyGaurd.entitlements;
+				CODE_SIGN_ENTITLEMENTS = PennyGaurd/MainApp/PennyGaurd.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"PennyGaurd/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"PennyGaurd/Resources/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -583,6 +592,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4809B29A2DB25D8000E70FFC /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.19.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4809B29B2DB25D8000E70FFC /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4809B29A2DB25D8000E70FFC /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4801CF3E2DB2309C001434DB /* Project object */;
 }
