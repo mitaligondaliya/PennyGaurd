@@ -21,13 +21,3 @@ extension DependencyValues {
         set { self[ModelContextKey.self] = newValue }
     }
 }
-
-let previewContainer: ModelContainer = {
-    do {
-        let schema = Schema([Transaction.self])
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        return try ModelContainer(for: schema, configurations: [configuration])
-    } catch {
-        fatalError("Failed to create ModelContainer: \(error)")
-    }
-}()

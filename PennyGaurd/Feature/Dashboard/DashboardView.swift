@@ -38,7 +38,7 @@ struct DashboardView: View {
                     IfLetStore(
                         store.scope(
                             state: \.editorState,
-                            action: DashboardReducer.Action.editor
+                            action: \.editor
                         ),
                         then: AddTransactionView.init(store:)
                     )

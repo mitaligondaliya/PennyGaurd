@@ -53,7 +53,7 @@ struct TransactionListView: View {
                 }
                 .sheet(isPresented: viewStore.binding(get: \.isPresentingSheet, send: .sheetDismissed)) {
                     IfLetStore(
-                        store.scope(state: \.editorState, action: TransactionListReducer.Action.editor),
+                        store.scope(state: \.editorState, action: \.editor),
                         then: AddTransactionView.init(store:)
                     )
                 }
@@ -98,7 +98,7 @@ struct TransactionRowView: View {
     }
 }
 
-#Preview {
+#Preview("Transaction Row") {
     TransactionRowView(transaction: Transaction(
         id: UUID(),
         title: "Groceries",

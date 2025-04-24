@@ -15,17 +15,8 @@ struct TransactionRow: View {
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(transaction.category.displayName)
-                    .fontWeight(.medium)
-                
-                if let notes = transaction.notes, !notes.isEmpty {
-                    Text(notes)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
+            Text(transaction.category.displayName)
+                .fontWeight(.medium)
             
             Spacer()
             

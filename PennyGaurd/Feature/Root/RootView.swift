@@ -21,7 +21,7 @@ struct RootView: View {
                 DashboardView(
                     store: store.scope(
                         state: \.dashboard,  // Key path to the dashboard state
-                        action: AppReducer.Action.dashboard  // Case key path to the dashboard action
+                        action: \.dashboard  // Case key path to the dashboard action
                     )
                 )
                 .tabItem {
@@ -32,7 +32,7 @@ struct RootView: View {
                 TransactionListView(
                     store: store.scope(
                         state: \.transactions,
-                        action: AppReducer.Action.transactions
+                        action: \.transactions
                     )
                 )
                 .tabItem {

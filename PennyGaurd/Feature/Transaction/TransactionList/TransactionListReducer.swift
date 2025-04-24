@@ -16,6 +16,7 @@ struct TransactionListReducer: Reducer {
         var editorState: AddTransactionReducer.State? = nil
     }
 
+    @CasePathable
     enum Action: Equatable {
         case loadTransactions
         case transactionsLoaded([Transaction])
@@ -70,7 +71,7 @@ struct TransactionListReducer: Reducer {
                 return .send(.loadTransactions)
             }
         }
-        .ifLet(\.editorState, action: /Action.editor) {
+        .ifLet(\.editorState, action: \.editor) {
             AddTransactionReducer()
         }
     }

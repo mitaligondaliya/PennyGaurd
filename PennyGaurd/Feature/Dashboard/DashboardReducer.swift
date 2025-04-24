@@ -60,6 +60,7 @@ struct DashboardReducer: Reducer {
         }
     }
 
+    @CasePathable
     enum Action: Equatable {
         case loadTransactions
         case transactionsLoaded([Transaction])
@@ -110,7 +111,7 @@ struct DashboardReducer: Reducer {
                 return .none
             }
         }
-        .ifLet(\.editorState, action: /Action.editor) {
+        .ifLet(\.editorState, action: \.editor) {
             AddTransactionReducer()
         }
     }
