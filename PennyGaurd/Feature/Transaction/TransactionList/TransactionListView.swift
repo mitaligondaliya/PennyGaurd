@@ -16,22 +16,27 @@ struct TransactionListView: View {
             NavigationStack {
                 List {
                     ForEach(viewStore.transactions, id: \.id) { transaction in
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text(transaction.title)
-                                Spacer()
-                                Text("\(transaction.amount, specifier: "%.2f")")
-                                    .foregroundColor(transaction.type == .income ? .green : .red)
+                        TransactionRowView(transaction: transaction)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                let deleteButton = Button(role: .destructive) {
+                                    if let index = viewStore.transactions.firstIndex(where: { $0.id == transaction.id }) {
+                                        viewStore.send(.delete(IndexSet(integer: index)))
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                
+                                let editButton = Button {
+                                    viewStore.send(.transactionTapped(transaction))
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                    .tint(.blue)
+                                
+                                deleteButton
+                                editButton
                             }
-                            Text(transaction.category.displayName)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .onTapGesture {
-                            viewStore.send(.transactionTapped(transaction))
-                        }
                     }
-                    .onDelete { viewStore.send(.delete($0)) }
                 }
                 .navigationTitle("All Transactions")
                 .toolbar {
@@ -63,5 +68,45 @@ struct TransactionListView: View {
             TransactionListReducer()
         }
     )
-    .modelContainer(for: [Transaction.self]) 
+    .modelContainer(for: [Transaction.self])
+}
+
+struct TransactionRowView: View {
+    let transaction: Transaction
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(transaction.title)
+                    .font(.body)
+                Spacer()
+                Text("\(transaction.amount, specifier: "%.2f")")
+                    .foregroundColor(transaction.type == .income ? .green : .red)
+            }
+            HStack {
+                Text(transaction.category.displayName)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                
+                Text(transaction.date, style: .date)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+#Preview {
+    TransactionRowView(transaction: Transaction(
+        id: UUID(),
+        title: "Groceries",
+        amount: 52.49,
+        date: Date(),
+        notes: "Weekly shopping",
+        category: .food,
+        type: .expense
+    ))
+    .padding()
 }
