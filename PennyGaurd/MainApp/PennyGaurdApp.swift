@@ -29,7 +29,7 @@ struct PennyGaurdApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView(store: Store(initialState: AppReducer.State()) {
+            AppTabView(store: Store(initialState: AppReducer.State()) {
                 AppReducer()
             } withDependencies: {
                 $0.modelContext = modelContainer.mainContext

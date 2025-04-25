@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 //MARK: ContentView
-struct RootView: View {
+struct AppTabView: View {
     let store: StoreOf<AppReducer>
 
     var body: some View {
@@ -45,7 +45,7 @@ struct RootView: View {
 }
 
 #Preview {
-    RootView(store: Store(initialState: AppReducer.State(), reducer: {
+    AppTabView(store: Store(initialState: AppReducer.State(), reducer: {
         AppReducer()
     }))
 }
