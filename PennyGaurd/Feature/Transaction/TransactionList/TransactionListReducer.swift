@@ -19,7 +19,6 @@ struct TransactionListReducer: Reducer {
     @CasePathable
     enum Action: Equatable {
         case loadTransactions
-        case transactionsLoaded([Transaction])
         case addButtonTapped
         case transactionTapped(Transaction)
         case sheetDismissed
@@ -27,17 +26,16 @@ struct TransactionListReducer: Reducer {
         case delete(IndexSet)
     }
 
-    @Dependency(\.modelContext) var modelContext
+    @Dependency(\.swiftData) var context
+    @Dependency(\.databaseService) var databaseService
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .loadTransactions:
-                let fetched = (try? modelContext.fetch(FetchDescriptor<Transaction>())) ?? []
-                return .send(.transactionsLoaded(fetched))
-
-            case let .transactionsLoaded(transactions):
-                state.transactions = transactions
+                do {
+                    state.transactions  = try context.fetchAll()
+                } catch {}
                 return .none
 
             case .addButtonTapped:
@@ -54,7 +52,7 @@ struct TransactionListReducer: Reducer {
                 state.isPresentingSheet = false
                 return .none
 
-            case .editor(.saveCompleted), .editor(.deleteCompleted):
+            case .editor(.saveCompleted):
                 state.editorState = nil
                 state.isPresentingSheet = false
                 return .send(.loadTransactions)
@@ -65,10 +63,15 @@ struct TransactionListReducer: Reducer {
             case let .delete(indexSet):
                 for index in indexSet {
                     let transaction = state.transactions[index]
-                    modelContext.delete(transaction)
+                    do {
+                        try context.delete(transaction)
+                    } catch {
+                        
+                    }
                 }
-                try? modelContext.save()
-                return .send(.loadTransactions)
+                return .run { @MainActor send in
+                    send(.loadTransactions)
+                }
             }
         }
         .ifLet(\.editorState, action: \.editor) {

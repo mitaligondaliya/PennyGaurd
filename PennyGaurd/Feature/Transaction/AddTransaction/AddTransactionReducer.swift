@@ -47,12 +47,11 @@ struct AddTransactionReducer: Reducer {
         case categorySelected(Category)
         case cancelTapped
         case saveTapped
-        case deleteTapped
         case saveCompleted
-        case deleteCompleted
     }
-
-    @Dependency(\.modelContext) var modelContext
+    
+    @Dependency(\.swiftData) var context
+    @Dependency(\.databaseService) var databaseService
 
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
@@ -88,7 +87,6 @@ struct AddTransactionReducer: Reducer {
             return .none
 
         case .saveTapped:
-
             if let editing = state.transaction {
                 editing.title = state.title
                 editing.amount = state.amount
@@ -105,20 +103,24 @@ struct AddTransactionReducer: Reducer {
                     category: state.selectedCategory,
                     type: state.type
                 )
-                modelContext.insert(new)
+                
+                do {
+                    try context.add(new)
+                } catch {}
             }
-
-            try? modelContext.save()
-            return .send(.saveCompleted)
-
-        case .deleteTapped:
-            if let transaction = state.transaction {
-                modelContext.delete(transaction)
-                try? modelContext.save()
+            guard let context = try? self.databaseService.context() else {
+                print("Failed to find context")
+                return .none
             }
-            return .send(.deleteCompleted)
+            do {
+                try context.save()
+                return .send(.saveCompleted)
+            } catch {
+                print("Failed to save")
+            }
+            return .none
 
-        case .saveCompleted, .deleteCompleted, .cancelTapped:
+        case .saveCompleted, .cancelTapped:
             return .none
         }
     }

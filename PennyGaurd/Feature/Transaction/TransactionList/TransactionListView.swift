@@ -51,9 +51,17 @@ struct TransactionListView: View {
                 .onAppear {
                     viewStore.send(.loadTransactions)
                 }
-                .sheet(isPresented: viewStore.binding(get: \.isPresentingSheet, send: .sheetDismissed)) {
+                .sheet(
+                    isPresented: viewStore.binding(
+                        get: \.isPresentingSheet,
+                        send: .sheetDismissed
+                    )
+                ) {
                     IfLetStore(
-                        store.scope(state: \.editorState, action: \.editor),
+                        store.scope(
+                            state: \.editorState,
+                            action: \.editor
+                        ),
                         then: AddTransactionView.init(store:)
                     )
                 }

@@ -63,7 +63,6 @@ struct DashboardReducer: Reducer {
     @CasePathable
     enum Action: Equatable {
         case loadTransactions
-        case transactionsLoaded([Transaction])
         case addButtonTapped
         case transactionTapped(Transaction)
         case sheetDismissed
@@ -71,7 +70,8 @@ struct DashboardReducer: Reducer {
         case setTimeFrame(TimeFrame)
     }
     
-    @Dependency(\.modelContext) var modelContext
+    @Dependency(\.swiftData) var context
+    @Dependency(\.databaseService) var databaseService
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -81,11 +81,9 @@ struct DashboardReducer: Reducer {
                 return .none
                 
             case .loadTransactions:
-                let fetched = (try? modelContext.fetch(FetchDescriptor<Transaction>())) ?? []
-                return .send(.transactionsLoaded(fetched))
-
-            case let .transactionsLoaded(transactions):
-                state.transactions = transactions
+                do {
+                    state.transactions = try context.fetchAll()
+                } catch {}
                 return .none
 
             case .addButtonTapped:
@@ -102,7 +100,7 @@ struct DashboardReducer: Reducer {
                 state.isPresentingSheet = false
                 return .none
 
-            case .editor(.saveCompleted), .editor(.deleteCompleted):
+            case .editor(.saveCompleted):
                 state.editorState = nil
                 state.isPresentingSheet = false
                 return .send(.loadTransactions)
