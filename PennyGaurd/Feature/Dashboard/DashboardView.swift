@@ -90,7 +90,7 @@ struct DashboardView: View {
             Text("Spending by Category")
                 .font(.headline)
                 .padding(.bottom, 5)
-            
+
             Divider()
 
             if !viewStore.expensesByCategory.isEmpty {
@@ -125,12 +125,12 @@ struct DashboardView: View {
                 Text("Recent Transactions")
                     .font(.headline)
             }
-            
+
             Divider()
 
             if !viewStore.filteredTransactions.isEmpty {
                 ForEach(viewStore.filteredTransactions.prefix(5)) { transaction in
-                    
+
                     TransactionRow(transaction: transaction)
 
                     if transaction.id != viewStore.filteredTransactions.prefix(5).last?.id {
@@ -176,7 +176,6 @@ struct DashboardView: View {
 
 // MARK: - Preview
 #Preview {
-    
     let modelContainer: ModelContainer = {
             do {
                 let schema = Schema([Transaction.self])
@@ -195,4 +194,3 @@ struct DashboardView: View {
     )
     .environment(\.modelContext, modelContext)
 }
-

@@ -24,9 +24,9 @@ enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
     case shopping
     case healthcare
     case other
-    
+
     var id: String { rawValue }
-    
+
     var displayName: String {
         switch self {
         case .salary: return "Salary"
@@ -41,7 +41,7 @@ enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
         case .other: return "Other"
         }
     }
-    
+
     var color: Color {
         switch self {
         case .salary: return .green
@@ -56,7 +56,7 @@ enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
         case .other: return .indigo
         }
     }
-    
+
     var type: CategoryType {
         switch self {
         case .salary, .business, .rental, .interest:

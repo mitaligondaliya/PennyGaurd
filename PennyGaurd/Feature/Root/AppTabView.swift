@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-//MARK: ContentView
+// MARK: ContentView
 struct AppTabView: View {
     let store: StoreOf<AppReducer>
 

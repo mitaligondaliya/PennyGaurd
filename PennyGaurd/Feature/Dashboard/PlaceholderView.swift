@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct PlaceholderView: View {
     let message: String
-    var addAction: (() -> Void)? = nil
+    var addAction: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 12) {
@@ -36,4 +36,3 @@ struct PlaceholderView: View {
     PlaceholderView(
         message: "No data") { }
 }
-

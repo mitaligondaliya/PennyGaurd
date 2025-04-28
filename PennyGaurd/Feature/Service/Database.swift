@@ -17,9 +17,9 @@ extension DependencyValues {
     }
 }
 
-fileprivate let appContext: ModelContext = {
+private let appContext: ModelContext = {
     do {
-        
+
         let container = try ModelContainer(for: Transaction.self)
         return ModelContext(container)
     } catch {
@@ -39,11 +39,11 @@ extension Database: DependencyKey {
 
 extension Database: TestDependencyKey {
     public static var previewValue = Self.noop
-    
+
     public static let testValue = Self(
         context: unimplemented("\(Self.self).context")
     )
-    
+
     static let noop = Self(
         context: unimplemented("\(Self.self).context")
     )

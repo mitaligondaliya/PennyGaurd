@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 @main
 struct PennyGaurdApp: App {
-    
+
     // Create the ModelContainer for Transaction model
     let modelContainer: ModelContainer
     let store = Store(initialState: AppReducer.State()) {
@@ -26,7 +26,7 @@ struct PennyGaurdApp: App {
                fatalError("Could not create model container: \(error)")
            }
        }
-    
+
     @Dependency(\.databaseService) var databaseService
     var modelContext: ModelContext {
         guard let modelContext = try? self.databaseService.context() else {
@@ -34,7 +34,7 @@ struct PennyGaurdApp: App {
         }
         return modelContext
     }
-    
+
     var body: some Scene {
         WindowGroup {
             AppTabView(

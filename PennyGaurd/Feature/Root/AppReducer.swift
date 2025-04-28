@@ -13,7 +13,7 @@ struct AppReducer: Reducer {
         var dashboard = DashboardReducer.State()
         var transactions = TransactionListReducer.State()
     }
-    
+
     @CasePathable
     enum Action {
         case dashboard(DashboardReducer.Action)

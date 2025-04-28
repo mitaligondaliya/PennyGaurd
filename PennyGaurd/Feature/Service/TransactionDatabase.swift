@@ -22,7 +22,7 @@ struct TransactionDatabase {
     var add: @Sendable (Transaction) throws -> Void
     var delete: @Sendable (Transaction) throws -> Void
     var update: @Sendable (Transaction) async throws -> Void // Add this method
-    
+
     enum TransactionError: Error {
         case add
         case delete
@@ -35,7 +35,7 @@ extension TransactionDatabase: DependencyKey {
             do {
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
-                
+
                 let descriptor = FetchDescriptor<Transaction>(sortBy: [SortDescriptor(\.date)])
                 return try transactionContext.fetch(descriptor)
             } catch {
@@ -55,7 +55,7 @@ extension TransactionDatabase: DependencyKey {
             do {
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
-                
+
                 transactionContext.insert(model)
             } catch {
                 throw TransactionError.add
@@ -65,18 +65,18 @@ extension TransactionDatabase: DependencyKey {
             do {
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
-                
+
                 let modelToBeDelete = model
                 transactionContext.delete(modelToBeDelete)
             } catch {
                 throw TransactionError.delete
             }
         },
-        update: { model in
+        update: { _ in
             do {
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
-                
+
                 try transactionContext.save()
             } catch {
                 throw TransactionError.add
@@ -87,7 +87,7 @@ extension TransactionDatabase: DependencyKey {
 
 extension TransactionDatabase: TestDependencyKey {
     public static var previewValue = Self.noop
-    
+
     public static let testValue = Self(
         fetchAll: unimplemented("\(Self.self).fetch"),
         fetch: unimplemented("\(Self.self).fetchDescriptor"),
@@ -95,7 +95,7 @@ extension TransactionDatabase: TestDependencyKey {
         delete: unimplemented("\(Self.self).delete"),
         update: unimplemented("\(Self.self).update")
     )
-    
+
     static let noop = Self(
         fetchAll: { [] },
         fetch: { _ in [] },

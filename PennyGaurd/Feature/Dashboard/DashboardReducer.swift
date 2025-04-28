@@ -13,7 +13,7 @@ struct DashboardReducer: Reducer {
     struct State: Equatable {
         var transactions: [Transaction] = []
         var isPresentingSheet = false
-        var editorState: AddTransactionReducer.State? = nil
+        var editorState: AddTransactionReducer.State?
         var timeFrame: TimeFrame = .month
 
         var totalIncome: Double {
@@ -27,7 +27,7 @@ struct DashboardReducer: Reducer {
         var balance: Double {
             totalIncome - totalExpense
         }
-        
+
         var filteredTransactions: [Transaction] {
             let calendar = Calendar.current
             let now = Date()
@@ -50,7 +50,7 @@ struct DashboardReducer: Reducer {
                 return transactions.sorted { $0.date > $1.date }
             }
         }
-        
+
         var expensesByCategory: [Category: Double] {
             var result: [Category: Double] = [:]
             for transaction in filteredTransactions where transaction.type == .expense {
@@ -69,7 +69,7 @@ struct DashboardReducer: Reducer {
         case editor(AddTransactionReducer.Action)
         case setTimeFrame(TimeFrame)
     }
-    
+
     @Dependency(\.swiftData) var context
     @Dependency(\.databaseService) var databaseService
 
@@ -79,7 +79,7 @@ struct DashboardReducer: Reducer {
             case let .setTimeFrame(newTimeFrame):
                 state.timeFrame = newTimeFrame
                 return .none
-                
+
             case .loadTransactions:
                 do {
                     state.transactions = try context.fetchAll()

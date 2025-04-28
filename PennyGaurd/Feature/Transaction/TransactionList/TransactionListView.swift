@@ -25,14 +25,14 @@ struct TransactionListView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                
+
                                 let editButton = Button {
                                     viewStore.send(.transactionTapped(transaction))
                                 } label: {
                                     Label("Edit", systemImage: "pencil")
                                 }
                                     .tint(.blue)
-                                
+
                                 deleteButton
                                 editButton
                             }
@@ -96,7 +96,7 @@ struct TransactionRowView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
-                
+
                 Text(transaction.date, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)

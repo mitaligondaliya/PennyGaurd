@@ -13,7 +13,7 @@ struct TransactionListReducer: Reducer {
     struct State: Equatable {
         var transactions: [Transaction] = []
         var isPresentingSheet = false
-        var editorState: AddTransactionReducer.State? = nil
+        var editorState: AddTransactionReducer.State?
     }
 
     @CasePathable
@@ -66,7 +66,7 @@ struct TransactionListReducer: Reducer {
                     do {
                         try context.delete(transaction)
                     } catch {
-                        
+
                     }
                 }
                 return .run { @MainActor send in

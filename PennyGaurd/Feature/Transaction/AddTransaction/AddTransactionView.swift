@@ -12,7 +12,7 @@ struct AddTransactionView: View {
     let store: StoreOf<AddTransactionReducer>
 
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
@@ -52,7 +52,10 @@ struct AddTransactionView: View {
                     }
 
                     Section {
-                        Picker(selection: viewStore.binding(get: \.selectedCategory, send: AddTransactionReducer.Action.categorySelected), label: Text("Category")) {
+                        Picker(selection: viewStore.binding(
+                            get: \.selectedCategory,
+                            send: AddTransactionReducer.Action.categorySelected
+                        ), label: Text("Category")) {
                             ForEach(Category.allCases.filter { $0.type == viewStore.type }, id: \.self) { category in
                                 HStack {
                                     Circle()
@@ -62,7 +65,7 @@ struct AddTransactionView: View {
                                 }
                             }
                         }
-                        
+
                         DatePicker("Date", selection: viewStore.binding(
                             get: \.date,
                             send: AddTransactionReducer.Action.dateChanged
@@ -85,7 +88,7 @@ struct AddTransactionView: View {
                             dismiss()
                         }
                     }
-                    
+
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Save") {
                             viewStore.send(.saveTapped)

@@ -11,7 +11,7 @@ import SwiftData
 
 struct AddTransactionReducer: Reducer {
     struct State: Equatable {
-        var transaction: Transaction? = nil
+        var transaction: Transaction?
         var title: String = ""
         var amount: Double = 0.0
         var date: Date = .now
@@ -19,11 +19,11 @@ struct AddTransactionReducer: Reducer {
         var type: CategoryType = .expense
         var selectedCategory: Category = .other
         var hasInitializedCategory = false
-        
+
         var isEditing: Bool {
             transaction != nil
         }
-        
+
         init() {}
 
         init(existing transaction: Transaction) {
@@ -49,7 +49,7 @@ struct AddTransactionReducer: Reducer {
         case saveTapped
         case saveCompleted
     }
-    
+
     @Dependency(\.swiftData) var context
     @Dependency(\.databaseService) var databaseService
 
@@ -70,7 +70,7 @@ struct AddTransactionReducer: Reducer {
         case let .notesChanged(newNotes):
             state.notes = newNotes
             return .none
-            
+
         case let .typeChanged(newType):
             state.type = newType
             // If not yet initialized, set the first matching category
@@ -103,7 +103,7 @@ struct AddTransactionReducer: Reducer {
                     category: state.selectedCategory,
                     type: state.type
                 )
-                
+
                 do {
                     try context.add(new)
                 } catch {}

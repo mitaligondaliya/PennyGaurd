@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		480421672DBF8B08000DBC08 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 480421662DBF8AFE000DBC08 /* .swiftlint.yml */; };
 		4809B29C2DB25D8000E70FFC /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 4809B29B2DB25D8000E70FFC /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +32,7 @@
 		4801CF462DB2309C001434DB /* PennyGaurd.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PennyGaurd.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4801CF592DB230A3001434DB /* PennyGaurdTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PennyGaurdTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4801CF632DB230A3001434DB /* PennyGaurdUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PennyGaurdUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		480421662DBF8AFE000DBC08 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -80,6 +82,7 @@
 		4801CF3D2DB2309C001434DB = {
 			isa = PBXGroup;
 			children = (
+				480421662DBF8AFE000DBC08 /* .swiftlint.yml */,
 				4801CF482DB2309C001434DB /* PennyGaurd */,
 				4801CF5C2DB230A3001434DB /* PennyGaurdTests */,
 				4801CF662DB230A3001434DB /* PennyGaurdUITests */,
@@ -107,6 +110,7 @@
 				4801CF422DB2309C001434DB /* Sources */,
 				4801CF432DB2309C001434DB /* Frameworks */,
 				4801CF442DB2309C001434DB /* Resources */,
+				480421622DBF82F7000DBC08 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -221,6 +225,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				480421672DBF8B08000DBC08 /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,6 +244,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		480421622DBF82F7000DBC08 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif which swiftlint > /dev/null; then\n  swiftlint --fix && swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4801CF422DB2309C001434DB /* Sources */ = {
@@ -402,6 +428,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PennyGaurd/Resources/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -439,6 +466,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PennyGaurd/Resources/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
