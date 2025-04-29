@@ -8,20 +8,24 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: ContentView
+// MARK: - AppTabView
+
 struct AppTabView: View {
     let store: StoreOf<AppReducer>
 
     var body: some View {
         WithViewStore(self.store, observe: \.selectedTab) { viewStore in
-            TabView(selection: viewStore.binding(
-                get: { $0 },
-                send: AppReducer.Action.selectTab
-            )) {
+            TabView(
+                selection: viewStore.binding(
+                    get: { $0 },
+                    send: AppReducer.Action.selectTab
+                )
+            ) {
+                // MARK: - Dashboard Tab
                 DashboardView(
                     store: store.scope(
-                        state: \.dashboard,  // Key path to the dashboard state
-                        action: \.dashboard  // Case key path to the dashboard action
+                        state: \.dashboard,     // Scope to dashboard state
+                        action: \.dashboard     // Scope to dashboard actions
                     )
                 )
                 .tabItem {
@@ -29,10 +33,11 @@ struct AppTabView: View {
                 }
                 .tag(AppReducer.Tab.dashboard)
 
+                // MARK: - Transactions Tab
                 TransactionListView(
                     store: store.scope(
-                        state: \.transactions,
-                        action: \.transactions
+                        state: \.transactions,  // Scope to transactions state
+                        action: \.transactions  // Scope to transactions actions
                     )
                 )
                 .tabItem {
@@ -44,8 +49,15 @@ struct AppTabView: View {
     }
 }
 
+// MARK: - Preview
+
 #Preview {
-    AppTabView(store: Store(initialState: AppReducer.State(), reducer: {
-        AppReducer()
-    }))
+    AppTabView(
+        store: Store(
+            initialState: AppReducer.State(),
+            reducer: {
+                AppReducer()
+            }
+        )
+    )
 }

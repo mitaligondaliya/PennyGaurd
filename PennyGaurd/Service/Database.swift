@@ -7,19 +7,19 @@
 
 import SwiftData
 import ComposableArchitecture
-import Dependencies
 import Foundation
 
+// MARK: - Dependency Key for ModelContext Access
 extension DependencyValues {
-    var databaseService: Database {
-        get { self[Database.self] }
-        set { self[Database.self] = newValue }
+    var databaseService: DatabaseService {
+        get { self[DatabaseService.self] }
+        set { self[DatabaseService.self] = newValue }
     }
 }
 
+// MARK: - Concrete ModelContext Setup (Used in Live App)
 private let appContext: ModelContext = {
     do {
-
         let container = try ModelContainer(for: Transaction.self)
         return ModelContext(container)
     } catch {
@@ -27,20 +27,23 @@ private let appContext: ModelContext = {
     }
 }()
 
-struct Database {
+// MARK: - DatabaseService Type Definition
+struct DatabaseService {
     var context: () throws -> ModelContext
 }
 
-extension Database: DependencyKey {
-    public static let liveValue = Self(
+// MARK: - Live Value for Dependency
+extension DatabaseService: DependencyKey {
+    static let liveValue = Self(
         context: { appContext }
     )
 }
 
-extension Database: TestDependencyKey {
-    public static var previewValue = Self.noop
+// MARK: - Preview/Test Support
+extension DatabaseService: TestDependencyKey {
+    static var previewValue = Self.noop
 
-    public static let testValue = Self(
+    static let testValue = Self(
         context: unimplemented("\(Self.self).context")
     )
 

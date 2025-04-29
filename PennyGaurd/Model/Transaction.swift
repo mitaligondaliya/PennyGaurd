@@ -8,8 +8,10 @@
 import Foundation
 import SwiftData
 
+// MARK: - Transaction Model
 @Model
 class Transaction: Identifiable {
+    // MARK: - Attributes
     @Attribute(.unique) var id: UUID
     var title: String
     var amount: Double
@@ -18,6 +20,7 @@ class Transaction: Identifiable {
     var type: CategoryType
     var category: Category
 
+    // MARK: - Initializer
     init(id: UUID = UUID(), title: String, amount: Double, date: Date = .now, notes: String? = nil, category: Category, type: CategoryType) {
         self.id = id
         self.title = title
@@ -29,11 +32,13 @@ class Transaction: Identifiable {
     }
 }
 
+// MARK: - TimeFrame Enum
 enum TimeFrame: String, CaseIterable, Identifiable, Equatable {
     case week = "Week"
     case month = "Month"
     case year = "Year"
     case all = "All Time"
 
+    // MARK: - ID for Identifiable Protocol
     var id: String { rawValue }
 }

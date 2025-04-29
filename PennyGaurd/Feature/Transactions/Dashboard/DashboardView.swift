@@ -18,17 +18,28 @@ struct DashboardView: View {
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 20) {
+                        // Summary card showing balance, income, and expense
                         summaryCard(viewStore)
+
+                        // Breakdown of expenses by category with progress bars
                         categoryBreakdown(viewStore)
+
+                        // List of recent transactions
                         recentTransactions(viewStore)
                     }
                     .padding()
                 }
                 .navigationTitle("Dashboard")
+                
+                // Toolbar with time frame picker and add button
                 .toolbar { toolbarContent(viewStore) }
+
+                // Load transactions when view appears
                 .onAppear {
                     viewStore.send(.loadTransactions)
                 }
+
+                // Sheet for adding/editing transaction
                 .sheet(
                     isPresented: viewStore.binding(
                         get: \.isPresentingSheet,
@@ -47,10 +58,10 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: - View Sections
-
+    // MARK: - Summary Card
     private func summaryCard(_ viewStore: ViewStore<TransactionReducer.State, TransactionReducer.Action>) -> some View {
         VStack(spacing: 12) {
+            // Display current balance
             HStack {
                 VStack(alignment: .leading) {
                     Text("Balance")
@@ -65,6 +76,7 @@ struct DashboardView: View {
 
             Divider()
 
+            // Show total income and total expense
             HStack {
                 incomeExpenseView(title: "Income", amount: viewStore.totalIncome, color: .green)
                 Spacer()
@@ -74,6 +86,7 @@ struct DashboardView: View {
         .cardStyle()
     }
 
+    // MARK: - Income/Expense Subview
     private func incomeExpenseView(title: String, amount: Double, color: Color) -> some View {
         VStack {
             Text(title)
@@ -85,6 +98,7 @@ struct DashboardView: View {
         }
     }
 
+    // MARK: - Category Breakdown Section
     private func categoryBreakdown(_ viewStore: ViewStore<TransactionReducer.State, TransactionReducer.Action>) -> some View {
         VStack(alignment: .leading) {
             Text("Spending by Category")
@@ -96,6 +110,7 @@ struct DashboardView: View {
             if !viewStore.expensesByCategory.isEmpty {
                 ForEach(viewStore.expensesByCategory.sorted(by: { $0.value > $1.value }), id: \.key) { category, amount in
                     VStack(alignment: .leading, spacing: 10) {
+                        // Category name and amount
                         HStack {
                             Text(category.displayName)
                             Spacer()
@@ -103,11 +118,13 @@ struct DashboardView: View {
                                 .fontWeight(.medium)
                         }
 
+                        // Progress bar based on total expenses
                         ProgressView(value: amount, total: viewStore.totalExpense)
                             .tint(category.color)
                     }
                 }
             } else {
+                // Placeholder if no expense data
                 PlaceholderView(
                     message: "No expense data for the selected period.",
                     addAction: {
@@ -119,6 +136,7 @@ struct DashboardView: View {
         .cardStyle()
     }
 
+    // MARK: - Recent Transactions Section
     private func recentTransactions(_ viewStore: ViewStore<TransactionReducer.State, TransactionReducer.Action>) -> some View {
         VStack(alignment: .leading) {
             HStack {
@@ -130,14 +148,16 @@ struct DashboardView: View {
 
             if !viewStore.filteredTransactions.isEmpty {
                 ForEach(viewStore.filteredTransactions.prefix(5)) { transaction in
-
+                    // Transaction row
                     TransactionRow(transaction: transaction)
 
+                    // Divider between rows except the last one
                     if transaction.id != viewStore.filteredTransactions.prefix(5).last?.id {
                         Divider()
                     }
                 }
             } else {
+                // Placeholder if no transactions
                 PlaceholderView(
                     message: "No transactions for the selected period.",
                     addAction: {
@@ -152,6 +172,7 @@ struct DashboardView: View {
     // MARK: - Toolbar
     @ToolbarContentBuilder
     private func toolbarContent(_ viewStore: ViewStore<TransactionReducer.State, TransactionReducer.Action>) -> some ToolbarContent {
+        // Time Frame Picker (top leading)
         ToolbarItem(placement: .topBarLeading) {
             Picker("Time Frame", selection: viewStore.binding(
                 get: \.timeFrame,
@@ -164,6 +185,7 @@ struct DashboardView: View {
             .pickerStyle(.menu)
         }
 
+        // Add button (top trailing)
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 viewStore.send(.addButtonTapped)
@@ -176,21 +198,10 @@ struct DashboardView: View {
 
 // MARK: - Preview
 #Preview {
-    let modelContainer: ModelContainer = {
-            do {
-                let schema = Schema([Transaction.self])
-                let config = ModelConfiguration(isStoredInMemoryOnly: true)
-                return try ModelContainer(for: schema, configurations: [config])
-            } catch {
-                fatalError("Failed to create ModelContainer: \(error)")
-            }
-        }()
-
-        let modelContext = modelContainer.mainContext
     DashboardView(
         store: Store(initialState: TransactionReducer.State()) {
             TransactionReducer()
         }
     )
-    .environment(\.modelContext, modelContext)
+    .modelContainer(for: [Transaction.self])
 }

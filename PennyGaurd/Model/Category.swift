@@ -9,10 +9,12 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// MARK: - CategoryType Enum
 enum CategoryType: String, Codable, Equatable, CaseIterable {
     case income, expense
 }
 
+// MARK: - Category Enum
 enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
     case salary
     case interest
@@ -25,8 +27,10 @@ enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
     case healthcare
     case other
 
+    // MARK: - ID for Identifiable Protocol
     var id: String { rawValue }
 
+    // MARK: - Display Name for Category
     var displayName: String {
         switch self {
         case .salary: return "Salary"
@@ -42,6 +46,7 @@ enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
         }
     }
 
+    // MARK: - Color for Category
     var color: Color {
         switch self {
         case .salary: return .green
@@ -57,6 +62,7 @@ enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
         }
     }
 
+    // MARK: - Category Type (Income/Expense)
     var type: CategoryType {
         switch self {
         case .salary, .business, .rental, .interest:

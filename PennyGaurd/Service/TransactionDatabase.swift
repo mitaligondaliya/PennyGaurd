@@ -9,6 +9,8 @@ import SwiftData
 import ComposableArchitecture
 import Foundation
 
+// MARK: - Dependency Injection Key for SwiftData-based Transaction Database
+
 extension DependencyValues {
     var swiftData: TransactionDatabase {
         get { self[TransactionDatabase.self] }
@@ -16,12 +18,16 @@ extension DependencyValues {
     }
 }
 
+// MARK: - TransactionDatabase Interface
+
 struct TransactionDatabase {
-    var fetchAll: @Sendable () throws -> [Transaction]
-    var fetch: @Sendable (FetchDescriptor<Transaction>) throws -> [Transaction]
-    var add: @Sendable (Transaction) throws -> Void
-    var delete: @Sendable (Transaction) throws -> Void
-    var update: @Sendable (Transaction) async throws -> Void // Add this method
+    var fetchAll: @Sendable () throws -> [Transaction]       // Fetch all transactions
+    var fetch: @Sendable (FetchDescriptor<Transaction>) throws -> [Transaction] // Fetch with a descriptor
+    var add: @Sendable (Transaction) throws -> Void           // Add a transaction
+    var delete: @Sendable (Transaction) throws -> Void        // Delete a transaction
+    var update: @Sendable (Transaction) async throws -> Void  // Save changes to the database
+
+    // MARK: - Transaction Errors
 
     enum TransactionError: Error {
         case add
@@ -29,10 +35,13 @@ struct TransactionDatabase {
     }
 }
 
+// MARK: - Live Implementation
+
 extension TransactionDatabase: DependencyKey {
     public static let liveValue = Self(
         fetchAll: {
             do {
+                // Access the SwiftData context and fetch all transactions sorted by date
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
 
@@ -44,6 +53,7 @@ extension TransactionDatabase: DependencyKey {
         },
         fetch: { descriptor in
             do {
+                // Fetch using a provided FetchDescriptor
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
                 return try transactionContext.fetch(descriptor)
@@ -53,9 +63,9 @@ extension TransactionDatabase: DependencyKey {
         },
         add: { model in
             do {
+                // Insert a new transaction model into the context
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
-
                 transactionContext.insert(model)
             } catch {
                 throw TransactionError.add
@@ -63,20 +73,19 @@ extension TransactionDatabase: DependencyKey {
         },
         delete: { model in
             do {
+                // Delete the provided transaction model from the context
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
-
-                let modelToBeDelete = model
-                transactionContext.delete(modelToBeDelete)
+                transactionContext.delete(model)
             } catch {
                 throw TransactionError.delete
             }
         },
         update: { _ in
             do {
+                // Save changes to the context
                 @Dependency(\.databaseService.context) var context
                 let transactionContext = try context()
-
                 try transactionContext.save()
             } catch {
                 throw TransactionError.add
@@ -84,6 +93,8 @@ extension TransactionDatabase: DependencyKey {
         }
     )
 }
+
+// MARK: - Preview / Test Implementation
 
 extension TransactionDatabase: TestDependencyKey {
     public static var previewValue = Self.noop
@@ -96,6 +107,7 @@ extension TransactionDatabase: TestDependencyKey {
         update: unimplemented("\(Self.self).update")
     )
 
+    /// No-op mock version used for previews
     static let noop = Self(
         fetchAll: { [] },
         fetch: { _ in [] },

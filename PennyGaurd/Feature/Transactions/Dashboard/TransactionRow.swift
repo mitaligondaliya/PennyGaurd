@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 import ComposableArchitecture
 
-// MARK: - Transaction Row View
 struct TransactionRow: View {
     let transaction: Transaction
 
@@ -21,10 +20,14 @@ struct TransactionRow: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 4) {
-                Text(transaction.type == .expense ? "-$\(transaction.amount, specifier: "%.2f")" : "+$\(transaction.amount, specifier: "%.2f")")
-                    .fontWeight(.semibold)
-                    .foregroundStyle(transaction.type == .expense ? .red : .green)
-
+                // Display amount with sign and style based on transaction type
+                Text(transaction.type == .expense
+                     ? "-$\(transaction.amount, specifier: "%.2f")"
+                     : "+$\(transaction.amount, specifier: "%.2f")"
+                )
+                .fontWeight(.semibold)
+                .foregroundStyle(transaction.type == .expense ? .red : .green)
+                
                 Text(transaction.date, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -34,6 +37,7 @@ struct TransactionRow: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     TransactionRow(transaction: .init(title: "", amount: 0.0, category: .business, type: .income))
 }

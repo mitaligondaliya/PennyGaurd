@@ -9,9 +9,15 @@ import ComposableArchitecture
 import Foundation
 import SwiftData
 
+// MARK: - AddTransactionReducer
+/// Reducer for managing the state and actions related to adding or editing a transaction.
 struct AddTransactionReducer: Reducer {
+    
+    // MARK: - State
+    /// The state representing the data for adding or editing a transaction.
+    @ObservableState
     struct State: Equatable {
-        var transaction: Transaction?
+        var transaction: Transaction? // Existing transaction, if any
         var title: String = ""
         var amount: Double = 0.0
         var date: Date = .now
@@ -20,12 +26,11 @@ struct AddTransactionReducer: Reducer {
         var selectedCategory: Category = .other
         var hasInitializedCategory = false
 
-        var isEditing: Bool {
-            transaction != nil
-        }
+        var isEditing: Bool { transaction != nil } // Whether editing an existing transaction
 
         init() {}
 
+        /// Initializer for editing an existing transaction.
         init(existing transaction: Transaction) {
             self.transaction = transaction
             self.title = transaction.title
@@ -34,10 +39,11 @@ struct AddTransactionReducer: Reducer {
             self.notes = transaction.notes ?? ""
             self.type = transaction.type
             self.selectedCategory = transaction.category
-            self.hasInitializedCategory = true  // <— prevent auto-select
+            self.hasInitializedCategory = true // Prevent auto-select of category when editing
         }
     }
 
+    // MARK: - Action
     enum Action: Equatable {
         case titleChanged(String)
         case amountChanged(Double)
@@ -50,9 +56,11 @@ struct AddTransactionReducer: Reducer {
         case saveCompleted
     }
 
+    // MARK: - Dependencies
     @Dependency(\.swiftData) var context
     @Dependency(\.databaseService) var databaseService
 
+    // MARK: - Reducer Logic
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case let .titleChanged(newTitle):
@@ -73,20 +81,21 @@ struct AddTransactionReducer: Reducer {
 
         case let .typeChanged(newType):
             state.type = newType
-            // If not yet initialized, set the first matching category
             if !state.hasInitializedCategory {
+                // If category isn't initialized, set the first matching category for this type
                 if let first = Category.allCases.first(where: { $0.type == newType }) {
                     state.selectedCategory = first
-                    state.hasInitializedCategory = true
+                    state.hasInitializedCategory = true // Prevent re-initializing category
                 }
             }
             return .none
 
         case let .categorySelected(category):
-            state.selectedCategory = category
+            state.selectedCategory = category // Update selected category
             return .none
 
         case .saveTapped:
+            // Save transaction: either edit existing or create a new one
             if let editing = state.transaction {
                 editing.title = state.title
                 editing.amount = state.amount
@@ -105,23 +114,27 @@ struct AddTransactionReducer: Reducer {
                 )
 
                 do {
-                    try context.add(new)
-                } catch {}
+                    try context.add(new) // Add new transaction to context
+                } catch {
+                    print("Failed to add transaction to context: \(error)")
+                }
             }
+
+            // Save context changes
             guard let context = try? self.databaseService.context() else {
                 print("Failed to find context")
                 return .none
             }
             do {
-                try context.save()
-                return .send(.saveCompleted)
+                try context.save() // Save the changes to the database
+                return .send(.saveCompleted) // Indicate that save is completed
             } catch {
-                print("Failed to save")
+                print("Failed to save context: \(error)")
             }
             return .none
 
         case .saveCompleted, .cancelTapped:
-            return .none
+            return .none // No action needed for cancel or save completion
         }
     }
 }
