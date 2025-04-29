@@ -15,7 +15,7 @@ PennyGuard is a simple yet powerful personal finance app built using SwiftUI, Sw
 
 | Dashboard | Add Transaction | Transaction List |
 |:---------:|:----------------:|:----------------:|
-| <img src="PennyGaurd/Screenshots/Simulator Screenshot - iPhone 16 Pro - 2025-04-29 at 21.56.32.png" width="200" /> | <img src="PennyGaurd/Screenshots/Simulator Screenshot - iPhone 16 Pro - 2025-04-29 at 21.56.44.png" width="200" /> | <img src="PennyGaurd/Screenshots/Simulator Screenshot - iPhone 16 Pro - 2025-04-29 at 21.56.35.png" width="200" /> |
+| <img src="PennyGaurd/Resources/Assets/Screenshots/Dashboard.png" width="200" /> | <img src="PennyGaurd/Resources/Assets/Screenshots/AddTransaction.png" width="200" /> | <img src="PennyGaurd/Resources/Assets/Screenshots/TransactionList.png" width="200" /> |
 
 ## 🚀 Architecture
 
