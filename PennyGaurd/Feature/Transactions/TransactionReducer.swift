@@ -15,7 +15,8 @@ struct TransactionReducer: Reducer {
         var isPresentingSheet = false
         var editorState: AddTransactionReducer.State?
         var timeFrame: TimeFrame = .month
-        
+        var searchString: String = ""
+
         var totalIncome: Double {
             transactions.filter { $0.type == .income }.map(\.amount).reduce(0, +)
         }
@@ -27,14 +28,29 @@ struct TransactionReducer: Reducer {
         var balance: Double {
             totalIncome - totalExpense
         }
-
+        
         var filteredTransactions: [Transaction] {
+            var filteredTransactions = transactions
             let startDate = timeFrame.startDate
-            return transactions
-                .filter { startDate == nil || $0.date >= startDate! }
-                .sorted { $0.date > $1.date }
-        }
+            
+            // First filter by date
+            filteredTransactions = transactions.filter { transaction in
+                guard let startDate else { return true }
+                return transaction.date >= startDate
+            }
 
+            // Then filter by search text if any
+            if !searchString.isEmpty {
+                filteredTransactions = filteredTransactions.filter { transaction in
+                    transaction.title.localizedCaseInsensitiveContains(searchString) ||
+                    transaction.category.displayName.localizedCaseInsensitiveContains(searchString)
+                }
+            }
+
+            // Sort by date descending
+            return filteredTransactions.sorted { $0.date > $1.date }
+        }
+        
         var expensesByCategory: [Category: Double] {
             var result: [Category: Double] = [:]
             for transaction in filteredTransactions where transaction.type == .expense {
@@ -53,6 +69,7 @@ struct TransactionReducer: Reducer {
         case editor(AddTransactionReducer.Action)
         case delete(IndexSet)
         case setTimeFrame(TimeFrame)
+        case searchTextChanged(String)
     }
 
     @Dependency(\.swiftData) var context
@@ -63,7 +80,7 @@ struct TransactionReducer: Reducer {
             switch action {
             case let .setTimeFrame(newTimeFrame):
                 state.timeFrame = newTimeFrame
-                return .send(.loadTransactions) // Reload transactions when time frame changes
+                return .none
 
             case .loadTransactions:
                 do {
@@ -110,6 +127,12 @@ struct TransactionReducer: Reducer {
                     }
                 }
                 return .none
+                
+            case .searchTextChanged(let newString):
+                guard newString != state.searchString else { return .none }
+                
+                state.searchString = newString
+                return .send(.loadTransactions)
             }
         }
         .ifLet(\.editorState, action: \.editor) {

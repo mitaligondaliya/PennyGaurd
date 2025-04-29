@@ -10,12 +10,12 @@ import ComposableArchitecture
 
 struct TransactionListView: View {
     let store: StoreOf<TransactionReducer>
-
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
                 List {
-                    ForEach(viewStore.transactions, id: \.id) { transaction in
+                    ForEach(viewStore.filteredTransactions, id: \.id) { transaction in
                         TransactionRowView(transaction: transaction)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 let deleteButton = Button(role: .destructive) {
@@ -38,6 +38,12 @@ struct TransactionListView: View {
                             }
                     }
                 }
+                .searchable(
+                    text: viewStore.binding(
+                        get: \.searchString,
+                        send: { .searchTextChanged($0) }
+                    )
+                )
                 .navigationTitle("All Transactions")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -81,7 +87,7 @@ struct TransactionListView: View {
 
 struct TransactionRowView: View {
     let transaction: Transaction
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -96,7 +102,7 @@ struct TransactionRowView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
-
+                
                 Text(transaction.date, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
