@@ -15,6 +15,34 @@ struct TransactionListView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
                 List {
+                    Section(header: Text("Sort By")) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(SortOption.allCases, id: \.self) { option in
+                                    Button(action: {
+                                        viewStore.send(.sortOptionChanged(option))
+                                    }) {
+                                        Text(option.displayName)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 8)
+                                            .background(
+                                                viewStore.sortOption == option
+                                                ? Color.accentColor
+                                                : Color.gray.opacity(0.2)
+                                            )
+                                            .foregroundColor(
+                                                viewStore.sortOption == option
+                                                ? .white
+                                                : .primary
+                                            )
+                                            .clipShape(Capsule())
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                    
                     ForEach(viewStore.filteredTransactions, id: \.id) { transaction in
                         TransactionRowView(transaction: transaction)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {

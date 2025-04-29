@@ -9,6 +9,32 @@ import Foundation
 import ComposableArchitecture
 import SwiftData
 
+enum SortOption: String, CaseIterable, Equatable {
+    case dateDescending
+    case dateAscending
+    case amountDescending
+    case amountAscending
+    case titleAscending
+    case titleDescending
+    
+    var displayName: String {
+        switch self {
+        case .dateDescending:
+            return "Date ↓"
+        case .dateAscending:
+            return "Date ↑"
+        case .amountDescending:
+            return "Amount ↓"
+        case .amountAscending:
+            return "Amount ↑"
+        case .titleAscending:
+            return "Title A-Z"
+        case .titleDescending:
+            return "Title Z-A"
+        }
+    }
+}
+
 struct TransactionReducer: Reducer {
     struct State: Equatable {
         var transactions: [Transaction] = []
@@ -16,7 +42,8 @@ struct TransactionReducer: Reducer {
         var editorState: AddTransactionReducer.State?
         var timeFrame: TimeFrame = .month
         var searchString: String = ""
-
+        var sortOption: SortOption = .dateDescending
+    
         var totalIncome: Double {
             transactions.filter { $0.type == .income }.map(\.amount).reduce(0, +)
         }
@@ -30,25 +57,38 @@ struct TransactionReducer: Reducer {
         }
         
         var filteredTransactions: [Transaction] {
-            var filteredTransactions = transactions
+            var filtered = transactions
             let startDate = timeFrame.startDate
             
             // First filter by date
-            filteredTransactions = transactions.filter { transaction in
+            filtered = transactions.filter { transaction in
                 guard let startDate else { return true }
                 return transaction.date >= startDate
             }
-
+            
             // Then filter by search text if any
             if !searchString.isEmpty {
-                filteredTransactions = filteredTransactions.filter { transaction in
+                filtered = filtered.filter { transaction in
                     transaction.title.localizedCaseInsensitiveContains(searchString) ||
                     transaction.category.displayName.localizedCaseInsensitiveContains(searchString)
                 }
             }
-
-            // Sort by date descending
-            return filteredTransactions.sorted { $0.date > $1.date }
+            
+            // Apply sorting
+            switch sortOption {
+            case .dateDescending:
+                return filtered.sorted { $0.date > $1.date }
+            case .dateAscending:
+                return filtered.sorted { $0.date < $1.date }
+            case .amountDescending:
+                return filtered.sorted { $0.amount > $1.amount }
+            case .amountAscending:
+                return filtered.sorted { $0.amount < $1.amount }
+            case .titleAscending:
+                return filtered.sorted { $0.title.lowercased() < $1.title.lowercased() }
+            case .titleDescending:
+                return filtered.sorted { $0.title.lowercased() > $1.title.lowercased() }
+            }
         }
         
         var expensesByCategory: [Category: Double] {
@@ -70,6 +110,7 @@ struct TransactionReducer: Reducer {
         case delete(IndexSet)
         case setTimeFrame(TimeFrame)
         case searchTextChanged(String)
+        case sortOptionChanged(SortOption)
     }
 
     @Dependency(\.swiftData) var context
@@ -132,7 +173,12 @@ struct TransactionReducer: Reducer {
                 guard newString != state.searchString else { return .none }
                 
                 state.searchString = newString
-                return .send(.loadTransactions)
+                return .none
+                
+            case let .sortOptionChanged(option):
+                state.sortOption = option
+                return .none
+
             }
         }
         .ifLet(\.editorState, action: \.editor) {
