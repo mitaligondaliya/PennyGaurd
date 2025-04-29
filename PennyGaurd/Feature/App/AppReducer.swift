@@ -10,14 +10,14 @@ import ComposableArchitecture
 struct AppReducer: Reducer {
     struct State {
         var selectedTab: Tab = .dashboard
-        var dashboard = DashboardReducer.State()
-        var transactions = TransactionListReducer.State()
+        var dashboard = TransactionReducer.State()
+        var transactions = TransactionReducer.State()
     }
 
     @CasePathable
     enum Action {
-        case dashboard(DashboardReducer.Action)
-        case transactions(TransactionListReducer.Action)
+        case dashboard(TransactionReducer.Action)
+        case transactions(TransactionReducer.Action)
         case selectTab(Tab)
     }
 
@@ -28,11 +28,11 @@ struct AppReducer: Reducer {
 
     var body: some ReducerOf<Self> {
         Scope(state: \.dashboard, action: \.dashboard) {
-            DashboardReducer()
+            TransactionReducer()
         }
 
         Scope(state: \.transactions, action: \.transactions) {
-            TransactionListReducer()
+            TransactionReducer()
         }
 
         Reduce { state, action in

@@ -1,5 +1,5 @@
 //
-//  DashboardReducer.swift
+//  TransactionListReducer.swift
 //  PennyGaurd
 //
 //  Created by Mitali Gondaliya on 18/04/25.
@@ -9,13 +9,13 @@ import Foundation
 import ComposableArchitecture
 import SwiftData
 
-struct DashboardReducer: Reducer {
+struct TransactionReducer: Reducer {
     struct State: Equatable {
         var transactions: [Transaction] = []
         var isPresentingSheet = false
         var editorState: AddTransactionReducer.State?
         var timeFrame: TimeFrame = .month
-
+        
         var totalIncome: Double {
             transactions.filter { $0.type == .income }.map(\.amount).reduce(0, +)
         }
@@ -29,26 +29,10 @@ struct DashboardReducer: Reducer {
         }
 
         var filteredTransactions: [Transaction] {
-            let calendar = Calendar.current
-            let now = Date()
-            let startDate: Date?
-
-            switch timeFrame {
-            case .week:
-                startDate = calendar.date(byAdding: .day, value: -7, to: now)
-            case .month:
-                startDate = calendar.date(byAdding: .month, value: -1, to: now)
-            case .year:
-                startDate = calendar.date(byAdding: .year, value: -1, to: now)
-            case .all:
-                startDate = nil
-            }
-
-            if let start = startDate {
-                return transactions.filter { $0.date >= start }.sorted { $0.date > $1.date }
-            } else {
-                return transactions.sorted { $0.date > $1.date }
-            }
+            let startDate = timeFrame.startDate
+            return transactions
+                .filter { startDate == nil || $0.date >= startDate! }
+                .sorted { $0.date > $1.date }
         }
 
         var expensesByCategory: [Category: Double] {
@@ -67,6 +51,7 @@ struct DashboardReducer: Reducer {
         case transactionTapped(Transaction)
         case sheetDismissed
         case editor(AddTransactionReducer.Action)
+        case delete(IndexSet)
         case setTimeFrame(TimeFrame)
     }
 
@@ -78,12 +63,15 @@ struct DashboardReducer: Reducer {
             switch action {
             case let .setTimeFrame(newTimeFrame):
                 state.timeFrame = newTimeFrame
-                return .none
+                return .send(.loadTransactions) // Reload transactions when time frame changes
 
             case .loadTransactions:
                 do {
                     state.transactions = try context.fetchAll()
-                } catch {}
+                    // Optionally filter transactions based on the time frame here
+                } catch {
+                    print("Failed to load transactions: \(error)")
+                }
                 return .none
 
             case .addButtonTapped:
@@ -98,19 +86,52 @@ struct DashboardReducer: Reducer {
 
             case .sheetDismissed:
                 state.isPresentingSheet = false
+                state.editorState = nil // Clear editor state when the sheet is dismissed
                 return .none
 
             case .editor(.saveCompleted):
                 state.editorState = nil
                 state.isPresentingSheet = false
-                return .send(.loadTransactions)
+                return .send(.loadTransactions) // Reload transactions after saving
 
             case .editor:
+                return .none
+
+            case let .delete(indexSet):
+                // Delete selected transactions
+                for index in indexSet {
+                    let transaction = state.transactions[index]
+                    do {
+                        try context.delete(transaction)
+                        // Optionally remove from state if deletion is successful
+                        state.transactions.remove(at: index)
+                    } catch {
+                        print("Failed to delete transaction: \(error)")
+                    }
+                }
                 return .none
             }
         }
         .ifLet(\.editorState, action: \.editor) {
             AddTransactionReducer()
+        }
+    }
+}
+
+extension TimeFrame {
+    var startDate: Date? {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        switch self {
+        case .week:
+            return calendar.date(byAdding: .day, value: -7, to: now)
+        case .month:
+            return calendar.date(byAdding: .month, value: -1, to: now)
+        case .year:
+            return calendar.date(byAdding: .year, value: -1, to: now)
+        case .all:
+            return nil
         }
     }
 }

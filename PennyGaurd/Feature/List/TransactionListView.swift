@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TransactionListView: View {
-    let store: StoreOf<TransactionListReducer>
+    let store: StoreOf<TransactionReducer>
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -72,8 +72,8 @@ struct TransactionListView: View {
 
 #Preview {
     TransactionListView(
-        store: Store(initialState: TransactionListReducer.State()) {
-            TransactionListReducer()
+        store: Store(initialState: TransactionReducer.State()) {
+            TransactionReducer()
         }
     )
     .modelContainer(for: [Transaction.self])
