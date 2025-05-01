@@ -17,7 +17,7 @@ enum SortOption: String, CaseIterable, Equatable {
     case amountAscending
     case titleAscending
     case titleDescending
-
+    
     var displayName: String {
         switch self {
         case .dateDescending: return "Date ↓"
@@ -41,34 +41,35 @@ struct TransactionReducer: Reducer {
         var timeFrame: TimeFrame = .month
         var searchString: String = ""
         var sortOption: SortOption = .dateDescending
-
+        var errorMessage: String = ""
+        
         // Computed properties
         var totalIncome: Double {
             transactions.filter { $0.type == .income }
-                        .map(\.amount)
-                        .reduce(0, +)
+                .map(\.amount)
+                .reduce(0, +)
         }
-
+        
         var totalExpense: Double {
             transactions.filter { $0.type == .expense }
-                        .map(\.amount)
-                        .reduce(0, +)
+                .map(\.amount)
+                .reduce(0, +)
         }
-
+        
         var balance: Double {
             totalIncome - totalExpense
         }
-
+        
         // Filtered & sorted list of transactions
         var filteredTransactions: [Transaction] {
             var filtered = transactions
             let startDate = timeFrame.startDate
-
+            
             // Filter by date
             if let startDate {
                 filtered = filtered.filter { $0.date >= startDate }
             }
-
+            
             // Filter by search text
             if !searchString.isEmpty {
                 filtered = filtered.filter {
@@ -76,7 +77,7 @@ struct TransactionReducer: Reducer {
                     $0.category.displayName.localizedCaseInsensitiveContains(searchString)
                 }
             }
-
+            
             // Apply sorting
             switch sortOption {
             case .dateDescending: return filtered.sorted { $0.date > $1.date }
@@ -87,7 +88,7 @@ struct TransactionReducer: Reducer {
             case .titleDescending: return filtered.sorted { $0.title.lowercased() > $1.title.lowercased() }
             }
         }
-
+        
         // Expense totals grouped by category
         var expensesByCategory: [Category: Double] {
             var result: [Category: Double] = [:]
@@ -97,82 +98,103 @@ struct TransactionReducer: Reducer {
             return result
         }
     }
-
+    
     // MARK: - Action
     @CasePathable
-    enum Action: Equatable {
+    enum Action {
         case loadTransactions
+        case transactionsLoaded(Result<[Transaction], Error>)
         case addButtonTapped
         case transactionTapped(Transaction)
         case sheetDismissed
         case editor(AddTransactionReducer.Action)
         case delete(IndexSet)
+        case deleteSuccess(index: Int)
+        case deleteFailed(String)
         case setTimeFrame(TimeFrame)
         case searchTextChanged(String)
         case sortOptionChanged(SortOption)
     }
-
+    
     // MARK: - Dependencies
-    @Dependency(\.swiftData) var context
-    @Dependency(\.databaseService) var databaseService
-
+    @Dependency(\.swiftData) var transactionDB
+    // @Dependency(\.databaseService) var databaseService
+    
     // MARK: - Body
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-
+                
             case let .setTimeFrame(newTimeFrame):
                 state.timeFrame = newTimeFrame
                 return .none
-
+                
             case .loadTransactions:
-                do {
-                    state.transactions = try context.fetchAll()
-                } catch {
+                return .run { send in
+                    do {
+                        let transactions = try await transactionDB.fetchAll()
+                        await send(.transactionsLoaded(.success(transactions)))
+                    } catch {
+                        await send(.transactionsLoaded(.failure(error)))
+                    }
+                }
+            case let .transactionsLoaded(result):
+                switch result {
+                case let .success(transactions):
+                    state.transactions = transactions
+                case let .failure(error):
                     print("❌ Failed to load transactions: \(error)")
+                    // Optionally set an error state
                 }
                 return .none
-
+                
             case .addButtonTapped:
                 state.editorState = AddTransactionReducer.State()
                 state.isPresentingSheet = true
                 return .none
-
+                
             case let .transactionTapped(transaction):
                 state.editorState = AddTransactionReducer.State(existing: transaction)
                 state.isPresentingSheet = true
                 return .none
-
+                
             case .sheetDismissed:
                 state.isPresentingSheet = false
                 state.editorState = nil
                 return .none
-
+                
             case .editor(.saveCompleted):
                 state.editorState = nil
                 state.isPresentingSheet = false
                 return .send(.loadTransactions) // Reload data after save
-
+                
             case .editor:
                 return .none
-
+                
             case let .delete(indexSet):
-                for index in indexSet {
-                    let transaction = state.transactions[index]
+                guard let index = indexSet.first else { return .none }
+                let transaction = state.transactions[index]
+                let id = transaction.id
+                
+                return .run { [id] send in
                     do {
-                        try context.delete(transaction)
-                        state.transactions.remove(at: index)
+                        try await transactionDB.deleteByID(id)
+                        await send(.deleteSuccess(index: index))
                     } catch {
-                        print("❌ Failed to delete transaction: \(error)")
+                        await send(.deleteFailed("Delete failed"))
                     }
                 }
+            case let .deleteSuccess(index):
+                state.transactions.remove(at: index)
                 return .none
-
+            case let .deleteFailed(message):
+                state.errorMessage = message
+                return .none
             case let .searchTextChanged(newString):
                 guard newString != state.searchString else { return .none }
                 state.searchString = newString
                 return .none
-
+                
             case let .sortOptionChanged(option):
                 state.sortOption = option
                 return .none
@@ -189,7 +211,7 @@ extension TimeFrame {
     var startDate: Date? {
         let calendar = Calendar.current
         let now = Date()
-
+        
         switch self {
         case .week:
             return calendar.date(byAdding: .day, value: -7, to: now)

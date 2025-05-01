@@ -119,7 +119,7 @@ struct DashboardView: View {
                         }
 
                         // Progress bar based on total expenses
-                        ProgressView(value: amount, total: viewStore.totalExpense)
+                        ProgressView(value: min(max(amount, 0), viewStore.totalExpense), total: viewStore.totalExpense)
                             .tint(category.color)
                     }
                 }

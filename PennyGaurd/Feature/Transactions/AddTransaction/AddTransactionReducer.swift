@@ -22,14 +22,14 @@ struct AddTransactionReducer: Reducer {
         var amount: Double = 0.0
         var date: Date = .now
         var notes: String = ""
-        var type: CategoryType = .expense
-        var selectedCategory: Category = .other
+        var type: CategoryType = .income
+        var selectedCategory: Category = .salary
         var hasInitializedCategory = false
-
+        
         var isEditing: Bool { transaction != nil } // Whether editing an existing transaction
-
+        
         init() {}
-
+        
         /// Initializer for editing an existing transaction.
         init(existing transaction: Transaction) {
             self.transaction = transaction
@@ -42,7 +42,7 @@ struct AddTransactionReducer: Reducer {
             self.hasInitializedCategory = true // Prevent auto-select of category when editing
         }
     }
-
+    
     // MARK: - Action
     enum Action: Equatable {
         case titleChanged(String)
@@ -55,86 +55,83 @@ struct AddTransactionReducer: Reducer {
         case saveTapped
         case saveCompleted
     }
-
+    
     // MARK: - Dependencies
-    @Dependency(\.swiftData) var context
-    @Dependency(\.databaseService) var databaseService
-
+    @Dependency(\.swiftData) var transactionDB
+ 
     // MARK: - Reducer Logic
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
-        switch action {
-        case let .titleChanged(newTitle):
-            state.title = newTitle
-            return .none
-
-        case let .amountChanged(newAmount):
-            state.amount = newAmount
-            return .none
-
-        case let .dateChanged(newDate):
-            state.date = newDate
-            return .none
-
-        case let .notesChanged(newNotes):
-            state.notes = newNotes
-            return .none
-
-        case let .typeChanged(newType):
-            state.type = newType
-            if !state.hasInitializedCategory {
-                // If category isn't initialized, set the first matching category for this type
-                if let first = Category.allCases.first(where: { $0.type == newType }) {
-                    state.selectedCategory = first
-                    state.hasInitializedCategory = true // Prevent re-initializing category
-                }
-            }
-            return .none
-
-        case let .categorySelected(category):
-            state.selectedCategory = category // Update selected category
-            return .none
-
-        case .saveTapped:
-            // Save transaction: either edit existing or create a new one
-            if let editing = state.transaction {
-                editing.title = state.title
-                editing.amount = state.amount
-                editing.date = state.date
-                editing.notes = state.notes
-                editing.category = state.selectedCategory
-                editing.type = state.type
-            } else {
-                let new = Transaction(
-                    title: state.title,
-                    amount: state.amount,
-                    date: state.date,
-                    notes: state.notes,
-                    category: state.selectedCategory,
-                    type: state.type
-                )
-
-                do {
-                    try context.add(new) // Add new transaction to context
-                } catch {
-                    print("Failed to add transaction to context: \(error)")
-                }
-            }
-
-            // Save context changes
-            guard let context = try? self.databaseService.context() else {
-                print("Failed to find context")
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case let .titleChanged(newTitle):
+                state.title = newTitle
                 return .none
-            }
-            do {
-                try context.save() // Save the changes to the database
-                return .send(.saveCompleted) // Indicate that save is completed
-            } catch {
-                print("Failed to save context: \(error)")
-            }
-            return .none
+                
+            case let .amountChanged(newAmount):
+                state.amount = newAmount
+                return .none
+                
+            case let .dateChanged(newDate):
+                state.date = newDate
+                return .none
+                
+            case let .notesChanged(newNotes):
+                state.notes = newNotes
+                return .none
+                
+            case let .typeChanged(newType):
+//                state.type = newType
+//                if !state.hasInitializedCategory {
+//                    if let first = Category.allCases.first(where: { $0.type == newType }) {
+//                        state.selectedCategory = first
+//                        state.hasInitializedCategory = true
+//                    }
+//                }
+//                   return .none
+                state.type = newType
 
-        case .saveCompleted, .cancelTapped:
-            return .none // No action needed for cancel or save completion
+                   // Always reset selectedCategory to the first matching category
+                   if let firstCategory = Category.allCases.first(where: { $0.type == newType }) {
+                       state.selectedCategory = firstCategory
+                   } else {
+                       state.selectedCategory = .salary // Optional fallback, in case no match
+                   }
+
+                   return .none
+            case let .categorySelected(category):
+                state.selectedCategory = category // Update selected category
+                return .none
+            case .saveTapped:
+                return .run { [state] send in
+                    do {
+                        if let editing = state.transaction {
+                            editing.title = state.title
+                            editing.amount = state.amount
+                            editing.date = state.date
+                            editing.notes = state.notes
+                            editing.category = state.selectedCategory
+                            editing.type = state.type
+                            try await transactionDB.update(editing)
+                        } else {
+                            let new = Transaction(
+                                title: state.title,
+                                amount: state.amount,
+                                date: state.date,
+                                notes: state.notes,
+                                category: state.selectedCategory,
+                                type: state.type
+                            )
+                            try await transactionDB.add(new)
+                        }
+                        await send(.saveCompleted)
+                    } catch {
+                        print("❌ Failed to save transaction: \(error)")
+                        // You could also send a `.saveFailed(error.localizedDescription)` here if needed
+                    }
+                }
+            case .saveCompleted, .cancelTapped:
+                return .none // No action needed for cancel or save completion
+            }
         }
     }
 }

@@ -42,3 +42,14 @@ enum TimeFrame: String, CaseIterable, Identifiable, Equatable {
     // MARK: - ID for Identifiable Protocol
     var id: String { rawValue }
 }
+
+// MARK: - Mock Data
+extension Transaction {
+    static let sampleTransactions = [
+        Transaction(title: "Travel", amount: 50, date: .now, category: .travel, type: .expense),
+        Transaction(title: "Salary", amount: 2000, date: .now, category: .salary, type: .income),
+        Transaction(title: "Restaurant", amount: 50, date: .now, category: .food, type: .expense),
+        Transaction(title: "Bonus", amount: 300, date: .now, category: .business, type: .income),
+        Transaction(title: "Rent", amount: 1000, date: .now, category: .rental, type: .expense)
+    ]
+}

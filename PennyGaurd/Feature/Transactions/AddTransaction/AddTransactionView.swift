@@ -73,18 +73,21 @@ struct AddTransactionView: View {
                     // MARK: - Category & Date Section
                     Section {
                         // Picker for selecting category
-                        Picker(selection: viewStore.binding(
-                            get: \.selectedCategory,
-                            send: AddTransactionReducer.Action.categorySelected
-                        ), label: Text("Category")) {
+                        Picker(
+                            selection: viewStore.binding(
+                                get: \.selectedCategory,
+                                send: AddTransactionReducer.Action.categorySelected
+                            ),
+                            label: Text("Category")
+                        ) {
                             ForEach(Category.allCases.filter { $0.type == viewStore.type }, id: \.self) { category in
                                 HStack {
-                                    // Category color circle
                                     Circle()
                                         .fill(category.color)
                                         .frame(width: 10, height: 10)
-                                    Text(category.displayName).tag(category)
+                                    Text(category.displayName)
                                 }
+                                .tag(category) // ✅ Apply tag to the full row
                             }
                         }
 

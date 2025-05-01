@@ -29,7 +29,7 @@ private let appContext: ModelContext = {
 
 // MARK: - DatabaseService Type Definition
 struct DatabaseService {
-    var context: () throws -> ModelContext
+    var context: () throws -> ModelContext // This returns the ModelContext for direct access
 }
 
 // MARK: - Live Value for Dependency

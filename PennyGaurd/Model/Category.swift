@@ -12,6 +12,8 @@ import SwiftUI
 // MARK: - CategoryType Enum
 enum CategoryType: String, Codable, Equatable, CaseIterable {
     case income, expense
+    
+    var id: String { self.rawValue }
 }
 
 // MARK: - Category Enum
