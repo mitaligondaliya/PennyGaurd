@@ -22,8 +22,8 @@ struct AddTransactionReducer: Reducer {
         var amount: Double = 0.0
         var date: Date = .now
         var notes: String = ""
-        var type: CategoryType = .income
-        var selectedCategory: Category = .salary
+        var type: TransactionType = .income
+        var selectedCategory: CategoryType = .salary
         var hasInitializedCategory = false
         
         var isEditing: Bool { transaction != nil } // Whether editing an existing transaction
@@ -49,8 +49,8 @@ struct AddTransactionReducer: Reducer {
         case amountChanged(Double)
         case dateChanged(Date)
         case notesChanged(String)
-        case typeChanged(CategoryType)
-        case categorySelected(Category)
+        case typeChanged(TransactionType)
+        case categorySelected(CategoryType)
         case cancelTapped
         case saveTapped
         case saveCompleted
@@ -91,7 +91,7 @@ struct AddTransactionReducer: Reducer {
                 state.type = newType
 
                    // Always reset selectedCategory to the first matching category
-                   if let firstCategory = Category.allCases.first(where: { $0.type == newType }) {
+                   if let firstCategory = CategoryType.allCases.first(where: { $0.type == newType }) {
                        state.selectedCategory = firstCategory
                    } else {
                        state.selectedCategory = .salary // Optional fallback, in case no match

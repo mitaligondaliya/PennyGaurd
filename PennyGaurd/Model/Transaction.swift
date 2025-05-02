@@ -10,25 +10,25 @@ import SwiftData
 
 // MARK: - Transaction Model
 @Model
-class Transaction: Identifiable {
+class Transaction: Identifiable, Equatable {
     // MARK: - Attributes
     @Attribute(.unique) var id: UUID
     var title: String
     var amount: Double
     var date: Date
     var notes: String?
-    var type: CategoryType
-    var category: Category
+    var type: TransactionType
+    var category: CategoryType
 
     // MARK: - Initializer
-    init(id: UUID = UUID(), title: String, amount: Double, date: Date = .now, notes: String? = nil, category: Category, type: CategoryType) {
+    init(id: UUID = UUID(), title: String, amount: Double, date: Date = .now, notes: String? = nil, category: CategoryType, type: TransactionType) {
         self.id = id
         self.title = title
         self.amount = amount
         self.date = date
         self.notes = notes
         self.category = category
-        self.type = category.type
+        self.type = type
     }
 }
 

@@ -90,8 +90,8 @@ struct TransactionReducer: Reducer {
         }
         
         // Expense totals grouped by category
-        var expensesByCategory: [Category: Double] {
-            var result: [Category: Double] = [:]
+        var expensesByCategory: [CategoryType: Double] {
+            var result: [CategoryType: Double] = [:]
             for transaction in filteredTransactions where transaction.type == .expense {
                 result[transaction.category, default: 0] += transaction.amount
             }
@@ -101,9 +101,10 @@ struct TransactionReducer: Reducer {
     
     // MARK: - Action
     @CasePathable
-    enum Action {
+    enum Action: Equatable {
         case loadTransactions
-        case transactionsLoaded(Result<[Transaction], Error>)
+        case transactionsLoadedSuccess([Transaction])
+        case transactionsLoadedFailure(String)
         case addButtonTapped
         case transactionTapped(Transaction)
         case sheetDismissed
@@ -118,7 +119,6 @@ struct TransactionReducer: Reducer {
     
     // MARK: - Dependencies
     @Dependency(\.swiftData) var transactionDB
-    // @Dependency(\.databaseService) var databaseService
     
     // MARK: - Body
     var body: some ReducerOf<Self> {
@@ -133,21 +133,17 @@ struct TransactionReducer: Reducer {
                 return .run { send in
                     do {
                         let transactions = try await transactionDB.fetchAll()
-                        await send(.transactionsLoaded(.success(transactions)))
+                        await send(.transactionsLoadedSuccess(transactions))
                     } catch {
-                        await send(.transactionsLoaded(.failure(error)))
+                        await send(.transactionsLoadedFailure(error.localizedDescription))
                     }
                 }
-            case let .transactionsLoaded(result):
-                switch result {
-                case let .success(transactions):
-                    state.transactions = transactions
-                case let .failure(error):
-                    print("❌ Failed to load transactions: \(error)")
-                    // Optionally set an error state
-                }
+            case let .transactionsLoadedSuccess(result):
+                state.transactions = result
                 return .none
-                
+            case let .transactionsLoadedFailure(error):
+                print("❌ Failed to load transactions: \(error)")
+                return .none
             case .addButtonTapped:
                 state.editorState = AddTransactionReducer.State()
                 state.isPresentingSheet = true

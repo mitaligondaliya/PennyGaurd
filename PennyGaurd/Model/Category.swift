@@ -10,14 +10,14 @@ import SwiftData
 import SwiftUI
 
 // MARK: - CategoryType Enum
-enum CategoryType: String, Codable, Equatable, CaseIterable {
+enum TransactionType: String, Codable, Equatable, CaseIterable {
     case income, expense
     
     var id: String { self.rawValue }
 }
 
 // MARK: - Category Enum
-enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
+enum CategoryType: String, CaseIterable, Identifiable, Equatable, Codable {
     case salary
     case interest
     case rental
@@ -65,7 +65,7 @@ enum Category: String, CaseIterable, Identifiable, Equatable, Codable {
     }
 
     // MARK: - Category Type (Income/Expense)
-    var type: CategoryType {
+    var type: TransactionType {
         switch self {
         case .salary, .business, .rental, .interest:
             return .income

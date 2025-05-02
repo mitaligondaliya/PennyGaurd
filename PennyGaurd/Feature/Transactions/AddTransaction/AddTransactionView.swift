@@ -63,7 +63,7 @@ struct AddTransactionView: View {
                     Section {
                         // Picker for selecting type (Income/Expense)
                         Picker(selection: viewStore.binding(get: \.type, send: AddTransactionReducer.Action.typeChanged), label: Text("Type")) {
-                            ForEach(CategoryType.allCases, id: \.self) { type in
+                            ForEach(TransactionType.allCases, id: \.self) { type in
                                 Text(type.rawValue.capitalized).tag(type)
                             }
                         }
@@ -80,7 +80,7 @@ struct AddTransactionView: View {
                             ),
                             label: Text("Category")
                         ) {
-                            ForEach(Category.allCases.filter { $0.type == viewStore.type }, id: \.self) { category in
+                            ForEach(CategoryType.allCases.filter { $0.type == viewStore.type }, id: \.self) { category in
                                 HStack {
                                     Circle()
                                         .fill(category.color)
