@@ -41,8 +41,6 @@ extension DatabaseService: DependencyKey {
 
 // MARK: - Preview/Test Support
 extension DatabaseService: TestDependencyKey {
-    static var previewValue = Self.noop
-
     static let testValue = Self(
         context: {
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -60,32 +58,4 @@ extension DatabaseService: TestDependencyKey {
             }
         }
     )
-
-    static let noop = Self(
-        context: unimplemented("\(Self.self).context")
-    )
- }
-
-struct TestDatabaseService {
-    // Creates an in-memory ModelContext for testing
-    static func inMemory() -> DatabaseService {
-        return DatabaseService(
-            context: {
-                // Configuring the in-memory container for the Transaction model
-                let config = ModelConfiguration(isStoredInMemoryOnly: true)
-                do {
-                    let container = try ModelContainer(for: Transaction.self, configurations: config)
-                    print("ModelContainer created successfully")
-                    let context = ModelContext(container)
-                    print("ModelContext created successfully")
-                    return context
-                } catch {
-                    // fatalError("Failed to create in-memory ModelContainer: \(error)")
-                    // Log the error instead of fatalError
-                    print("Error creating in-memory ModelContext: \(error)")
-                    throw error
-                }
-            }
-        )
-    }
 }

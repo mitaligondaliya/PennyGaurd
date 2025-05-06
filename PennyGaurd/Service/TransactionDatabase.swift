@@ -101,22 +101,9 @@ extension TransactionDatabase: TestDependencyKey {
     public static var previewValue = Self.noop
     
     public static let testValue = Self(
-        fetchAll: {
-            let context = try DatabaseService.testValue.context()
-            let descriptor = FetchDescriptor<Transaction>(sortBy: [SortDescriptor(\.date)])
-            return try context.fetch(descriptor)
-        },
+        fetchAll: unimplemented("\(Self.self).fetchAll"),
         fetch: unimplemented("\(Self.self).fetchDescriptor"),
-        add: { model in
-            do {
-                // Insert a new transaction model into the context
-                let context = try DatabaseService.testValue.context()
-                context.insert(model)
-                try context.save()  // Ensure save is called after adding
-            } catch {
-                print("Failed to add transactions: \(error)")
-            }
-        },
+        add: unimplemented("\(Self.self).Add"),
         deleteByID: unimplemented("\(Self.self).delete"),
         update: unimplemented("\(Self.self).update")
     )
@@ -129,4 +116,4 @@ extension TransactionDatabase: TestDependencyKey {
         deleteByID: { _ in },
         update: { _ in }
     )
-}
+ }

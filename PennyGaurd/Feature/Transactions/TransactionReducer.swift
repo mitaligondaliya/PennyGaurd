@@ -135,14 +135,15 @@ struct TransactionReducer: Reducer {
                         let transactions = try await transactionDB.fetchAll()
                         await send(.transactionsLoadedSuccess(transactions))
                     } catch {
-                        await send(.transactionsLoadedFailure(error.localizedDescription))
+                        await send(.transactionsLoadedFailure("Fetch failed"))
                     }
                 }
             case let .transactionsLoadedSuccess(result):
                 state.transactions = result
                 return .none
-            case let .transactionsLoadedFailure(error):
-                print("❌ Failed to load transactions: \(error)")
+            case let .transactionsLoadedFailure(message):
+                print("❌ Failed to load transactions: \(message)")
+                state.errorMessage = message
                 return .none
             case .addButtonTapped:
                 state.editorState = AddTransactionReducer.State()

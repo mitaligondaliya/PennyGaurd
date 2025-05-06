@@ -24,7 +24,6 @@ struct AddTransactionReducer: Reducer {
         var notes: String = ""
         var type: TransactionType = .income
         var selectedCategory: CategoryType = .salary
-        var hasInitializedCategory = false
         
         var isEditing: Bool { transaction != nil } // Whether editing an existing transaction
         
@@ -39,7 +38,6 @@ struct AddTransactionReducer: Reducer {
             self.notes = transaction.notes ?? ""
             self.type = transaction.type
             self.selectedCategory = transaction.category
-            self.hasInitializedCategory = true // Prevent auto-select of category when editing
         }
     }
     
@@ -80,23 +78,16 @@ struct AddTransactionReducer: Reducer {
                 return .none
                 
             case let .typeChanged(newType):
-//                state.type = newType
-//                if !state.hasInitializedCategory {
-//                    if let first = Category.allCases.first(where: { $0.type == newType }) {
-//                        state.selectedCategory = first
-//                        state.hasInitializedCategory = true
-//                    }
-//                }
-//                   return .none
                 state.type = newType
-
-                   // Always reset selectedCategory to the first matching category
-                   if let firstCategory = CategoryType.allCases.first(where: { $0.type == newType }) {
-                       state.selectedCategory = firstCategory
-                   } else {
-                       state.selectedCategory = .salary // Optional fallback, in case no match
-                   }
-
+                
+                // Only reset category if it doesn’t match the new type
+                    if state.selectedCategory.type != newType {
+                        if let firstCategory = CategoryType.allCases.first(where: { $0.type == newType }) {
+                            state.selectedCategory = firstCategory
+                        } else {
+                            state.selectedCategory = .salary
+                        }
+                    }
                    return .none
             case let .categorySelected(category):
                 state.selectedCategory = category // Update selected category
