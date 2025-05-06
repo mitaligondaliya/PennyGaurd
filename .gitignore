@@ -1,0 +1,33 @@
+# Xcode
+*.xcuserstate
+*.xcscmblueprint
+*.xcworkspace/xcuserdata/
+*.xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Derived data
+DerivedData/
+build/
+
+# SwiftPM
+/.build/
+/Packages/
+/.swiftpm/xcode/package.xcworkspace/
+
+# CocoaPods
+Pods/
+/Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/screenshots
+fastlane/test_output
+
+# Misc
+*.DS_Store
+*.env
+
