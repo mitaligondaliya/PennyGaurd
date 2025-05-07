@@ -12,7 +12,6 @@ import ComposableArchitecture
 
 @testable import PennyGaurd
 
-@MainActor
 struct AddTransactionReducerTests {
     
     @Test func testSaveTappedAddsNewTransaction() async throws {
@@ -21,13 +20,13 @@ struct AddTransactionReducerTests {
         var savedTransaction: Transaction?
         
         // Create test dependency with overridden `add` method
-        var testDB = TransactionDatabase.testValue
+        var testDB = DatabaseClient.testValue
         testDB.add = { transaction in
             savedTransaction = transaction
         }
         
         // Initialize the TestStore with AddTransactionReducer
-        let store = TestStore(initialState: AddTransactionReducer.State()) {
+        let store = await TestStore(initialState: AddTransactionReducer.State()) {
             AddTransactionReducer()
         } withDependencies: {
             $0.swiftData = testDB
@@ -88,7 +87,7 @@ struct AddTransactionReducerTests {
         var savedTransaction: Transaction?
         
         // Create a test version of the database to override the `add` and `update` methods
-        var testDB = TransactionDatabase.testValue
+        var testDB = DatabaseClient.testValue
         testDB.update = { transaction in
             savedTransaction = transaction // Capture the saved transaction
         }

@@ -10,14 +10,14 @@ import Foundation
 
 // MARK: - Dependency Injection Key for SwiftData-based Transaction Database
 extension DependencyValues {
-    var swiftData: TransactionDatabase {
-        get { self[TransactionDatabase.self] }
-        set { self[TransactionDatabase.self] = newValue }
+    var swiftData: DatabaseClient {
+        get { self[DatabaseClient.self] }
+        set { self[DatabaseClient.self] = newValue }
     }
 }
 
 // MARK: - TransactionDatabase Interface
-struct TransactionDatabase {
+struct DatabaseClient {
     var fetchAll: () async throws -> [Transaction]       // Fetch all transactions
     var fetch: (FetchDescriptor<Transaction>) async throws -> [Transaction] // Fetch with a descriptor
     var add: (Transaction) async throws -> Void           // Add a transaction
@@ -33,7 +33,7 @@ struct TransactionDatabase {
 }
 
 // MARK: - Live Implementation
-extension TransactionDatabase: DependencyKey {
+extension DatabaseClient: DependencyKey {
     public static let liveValue = Self(
         fetchAll: {
             do {
@@ -97,7 +97,7 @@ extension TransactionDatabase: DependencyKey {
 }
 
 // MARK: - Preview / Test Implementation
-extension TransactionDatabase: TestDependencyKey {
+extension DatabaseClient: TestDependencyKey {
     public static var previewValue = Self.noop
     
     public static let testValue = Self(

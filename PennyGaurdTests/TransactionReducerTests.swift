@@ -25,7 +25,7 @@
             type: .expense
         )
         
-        var testDB = TransactionDatabase.testValue
+        var testDB = DatabaseClient.testValue
         testDB.fetchAll = {
             [testTransaction] // returns your fake transaction
         }
@@ -52,7 +52,7 @@
         // MARK: - Arrange
         let errorMessage = "Fetch failed"
         
-        var testDB = TransactionDatabase.testValue
+        var testDB = DatabaseClient.testValue
         testDB.fetchAll = {
             throw NSError(domain: "TestError", code: 1, userInfo: nil)
         }
@@ -91,7 +91,7 @@
             type: .expense
         )
         
-        var testDB = TransactionDatabase.testValue
+        var testDB = DatabaseClient.testValue
         testDB.deleteByID = { id in
             deletedID = id
         }
@@ -135,7 +135,7 @@
             type: .expense
         )
         
-        var testDB = TransactionDatabase.testValue
+        var testDB = DatabaseClient.testValue
         testDB.deleteByID = { _ in
             throw NSError(domain: "Test", code: 1, userInfo: nil)
         }
